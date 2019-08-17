@@ -19,6 +19,7 @@ CMD_GET_GAIN = 0x36
 CMD_SET_MAC  = 0x37
 CMD_GET_MAC  = 0x38
 CMD_GET_QFID = 0x3c # ROM boot only
+CMD_ERASE_SECBOOT = 0x3f
 
 # CRC-16/CCITT-FALSE
 def crc16(data : bytearray):
@@ -42,6 +43,11 @@ def error_exit(msg):
 
 ser = None
 
+def deviceHardReset():
+    ser.setRTS(True)
+    time.sleep(0.1)
+    ser.setRTS(False)
+
 def deviceWaitBoot(timeout = 3):
     ser.timeout = 0.01
     ser.flushInput()
@@ -63,15 +69,37 @@ def sendCommand(cmd):
     #print('<<< ', cmd.hex())
 
 def deviceSetBaud(baud):
-    sendCommand(struct.pack('<II', CMD_SET_BAUD, baud))
-    ser.close()
-    ser.baudrate = baud
-    ser.open()
-    return deviceWaitBoot()
+    prev_baud = ser.baudrate
+    
+    def serialSetBaud(value):
+        if ser.baudrate == value:
+            return
+        ser.close()
+        ser.baudrate = value
+        ser.open()
+        time.sleep(0.1)
 
-def deviceErase():
+    for retry in range(3):
+        serialSetBaud(prev_baud)
+        sendCommand(struct.pack('<II', CMD_SET_BAUD, baud))
+        serialSetBaud(baud)
+        if deviceWaitBoot():
+            return True
+    return False
+
+def deviceEraseImage():
     ser.timeout = 1
     sendCommand(struct.pack('<I', CMD_ERASE))
+    return deviceWaitBoot(5)
+
+def deviceEraseSecboot():
+    ser.timeout = 1
+    sendCommand(struct.pack('<I', CMD_ERASE_SECBOOT))
+    deviceWaitBoot(15)
+    return deviceIsInRomBoot()
+
+def deviceIsInRomBoot():
+    return (deviceGetFlashID() != None)
 
 def deviceSetMAC(mac):
     ser.timeout = 1
@@ -121,18 +149,20 @@ def deviceUploadFile(fn):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--port',  default="/dev/ttyUSB0")
-    parser.add_argument('--get-mac',     action="store_true")
+    parser.add_argument('-p', '--port',   default="/dev/ttyUSB0")
+    parser.add_argument('-b', '--baud',   default=115200, type=int)
+    parser.add_argument('--get-mac',      action="store_true")
     parser.add_argument('--set-mac')
-    parser.add_argument('-e', '--erase', action="store_true")
+    parser.add_argument('-e', '--erase',  action="store_true")
     parser.add_argument('-u', '--upload')
     parser.add_argument('--upload-speed', default=1000000, type=int)
     args = parser.parse_args()
 
-    ser = serial.Serial(args.port, 115200, timeout=1)
+    ser = serial.Serial(args.port, args.baud, timeout=1)
 
+    deviceHardReset()
     if not deviceWaitBoot():
-        print('Reset board to enter bootloader...')
+        print('Push reset button to enter bootloader...')
         if not deviceWaitBoot(15):
             error_exit('Bootloader not detected')
 
@@ -146,18 +176,36 @@ if __name__ == '__main__':
         print('MAC:', mac)
 
     if args.erase:
-        if deviceGetFlashID() == None:
-            error_exit('Secboot can\'t erase image, please enter ROM bootloader.')
-        print('Erasing image...')
-        deviceErase()
+        if not deviceIsInRomBoot():
+            print('Erasing secboot')
+            if not deviceEraseSecboot():
+                error_exit('Erasing secboot failed')
+
+        print('Erasing image')
+        deviceEraseImage()
+        deviceWaitBoot(5)
 
     if args.upload:
+        if not os.path.exists(args.upload):
+            error_exit('The specified file does not exist')
+            
+        _, ext = os.path.splitext(args.upload)
+
+        isRomBoot = deviceIsInRomBoot()
+        if isRomBoot:
+            if ext.lower() == '.img':
+                error_exit('FLS file is required for ROM bootloader')
+        else:
+            if ext.lower() == '.fls':
+                error_exit('IMG file is required for secboot')
+
         if args.upload_speed != ser.baudrate:
             if deviceSetBaud(args.upload_speed):
                 print('Switched speed to', ser.baudrate)
             else:
                 error_exit('Cannot switch speed')
 
-        print('Uploading', args.upload, '...')
+        print('Uploading', args.upload)
         reply = deviceUploadFile(args.upload)
-        print(reply)
+        
+        print("Reset board to run user code...")
