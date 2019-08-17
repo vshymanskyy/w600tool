@@ -9,7 +9,7 @@ Firmware upload tool for Winner Micro W600 & W601 WiFi
 ### Features
 - Automatically detects bootloader or helps entering `secboot`
 - Get/Set MAC address
-- Erase image
+- Erase secboot and image
 - Switch to high-speed mode
 - Upload `fls`, `img` files
 
