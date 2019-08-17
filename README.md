@@ -15,27 +15,28 @@ Firmware upload tool for Winner Micro W600 & W601 WiFi
 
 ### Usage
 ```log
-usage: w600tool.py [-h] [-p PORT] [--get-mac] [--set-mac SET_MAC] [-e]
-                   [-u UPLOAD] [--upload-speed UPLOAD_SPEED]
+usage: w600tool.py [-h] [-p PORT] [-b BAUD] [--get-mac] [--set-mac MAC] [-e]
+                   [-u FILE]
+                   [--upload-speed {115200,460800,921600,1000000,2000000}]
 
 optional arguments:
   -h, --help            show this help message and exit
   -p PORT, --port PORT
+  -b BAUD, --baud BAUD
   --get-mac
-  --set-mac SET_MAC
+  --set-mac MAC
   -e, --erase
-  -u UPLOAD, --upload UPLOAD
-  --upload-speed UPLOAD_SPEED (default 1000000)
+  -u FILE, --upload FILE
+  --upload-speed {115200,460800,921600,1000000,2000000}
 ```
 
 ### Example
 ```log
 $ python3 ./w600tool.py --upload fw/W60X_MicroPython_1.10_B1.1_GZ.img
-Reset board to enter bootloader...
+Push reset button to enter bootloader...
 Switched speed to 1000000
-Uploading fw/W60X_MicroPython_1.10_B1.1_GZ.img ...
+Uploading fw/W60X_MicroPython_1.10_B1.1_GZ.img
 0% [##############################] 100% | ETA: 00:00:00
 Total time elapsed: 00:00:09
-update header...
-reset chip to run user code...
+Reset board to run user code...
 ```
