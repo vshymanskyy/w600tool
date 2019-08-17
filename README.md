@@ -27,3 +27,15 @@ optional arguments:
   -u UPLOAD, --upload UPLOAD
   --upload-speed UPLOAD_SPEED (default 1000000)
 ```
+
+### Example
+```log
+$ python3 ./w600tool.py --upload fw/W60X_MicroPython_1.10_B1.1_GZ.img
+Reset board to enter bootloader...
+Switched speed to 1000000
+Uploading fw/W60X_MicroPython_1.10_B1.1_GZ.img ...
+0% [##############################] 100% | ETA: 00:00:00
+Total time elapsed: 00:00:09
+update header...
+reset chip to run user code...
+```
