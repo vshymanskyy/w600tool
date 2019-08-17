@@ -6,6 +6,8 @@ Firmware upload tool for Winner Micro W600 & W601 WiFi
 <img src="https://cdn.rawgit.com/simple-icons/simple-icons/develop/icons/windows.svg" width="18" height="18" /> Windows,
 <img src="https://cdn.rawgit.com/simple-icons/simple-icons/develop/icons/apple.svg" width="18" height="18" /> MacOS
 
+Prebuilt Windows executable file is available [here](https://github.com/vshymanskyy/w600tool/releases/latest)
+
 ### Features
 - Automatically detects bootloader or helps entering `secboot`
 - Get/Set MAC address
