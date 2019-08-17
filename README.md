@@ -17,7 +17,7 @@ Firmware upload tool for Winner Micro W600 & W601 WiFi
 ```log
 usage: w600tool.py [-h] [-p PORT] [-b BAUD] [--get-mac] [--set-mac MAC] [-e]
                    [-u FILE]
-                   [--upload-speed {115200,460800,921600,1000000,2000000}]
+                   [--upload-baud {115200,460800,921600,1000000,2000000}]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -27,7 +27,7 @@ optional arguments:
   --set-mac MAC
   -e, --erase
   -u FILE, --upload FILE
-  --upload-speed {115200,460800,921600,1000000,2000000}
+  --upload-baud {115200,460800,921600,1000000,2000000}
 ```
 
 ### Example
