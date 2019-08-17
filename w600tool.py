@@ -146,16 +146,28 @@ def deviceUploadFile(fn):
         return reply
 
     return None
+  
+import serial.tools.list_ports
+
+def getDefaultPort():
+    comlist = serial.tools.list_ports.comports()
+    if comlist:
+        return comlist[0].device;
+
+    if platform.system() == 'Windows':
+        return "COM1"
+    else:
+        return "/dev/ttyUSB0"
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--port',   default="/dev/ttyUSB0")
+    parser.add_argument('-p', '--port',   default=getDefaultPort())
     parser.add_argument('-b', '--baud',   default=115200, type=int)
     parser.add_argument('--get-mac',      action="store_true")
-    parser.add_argument('--set-mac')
+    parser.add_argument('--set-mac',      metavar='MAC')
     parser.add_argument('-e', '--erase',  action="store_true")
-    parser.add_argument('-u', '--upload')
-    parser.add_argument('--upload-speed', default=1000000, type=int)
+    parser.add_argument('-u', '--upload', metavar='FILE')
+    parser.add_argument('--upload-speed', default=1000000, type=int, choices=[115200, 460800, 921600, 1000000, 2000000])
     args = parser.parse_args()
 
     ser = serial.Serial(args.port, args.baud, timeout=1)
