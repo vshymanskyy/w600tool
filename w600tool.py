@@ -172,6 +172,7 @@ if __name__ == '__main__':
     parser.add_argument('--upload-baud',  default=1000000, type=int, choices=supportedBauds)
     args = parser.parse_args()
 
+    print('Opening device:', args.port)
     ser = serial.Serial(args.port, args.baud, timeout=1)
 
     deviceHardReset()
@@ -213,8 +214,8 @@ if __name__ == '__main__':
             if ext.lower() == '.fls':
                 error_exit('IMG file is required for secboot')
 
-        if args.upload_speed != ser.baudrate:
-            if deviceSetBaud(args.upload_speed):
+        if args.upload_baud != ser.baudrate:
+            if deviceSetBaud(args.upload_baud):
                 print('Switched speed to', ser.baudrate)
             else:
                 error_exit('Cannot switch speed')
