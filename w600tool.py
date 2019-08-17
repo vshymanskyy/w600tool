@@ -160,14 +160,16 @@ def getDefaultPort():
         return "/dev/ttyUSB0"
 
 if __name__ == '__main__':
+    supportedBauds = [115200, 460800, 921600, 1000000, 2000000]
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--port',   default=getDefaultPort())
-    parser.add_argument('-b', '--baud',   default=115200, type=int)
+    parser.add_argument('-b', '--baud',   default=115200,  type=int, choices=supportedBauds, metavar='BAUD')
     parser.add_argument('--get-mac',      action="store_true")
     parser.add_argument('--set-mac',      metavar='MAC')
     parser.add_argument('-e', '--erase',  action="store_true")
     parser.add_argument('-u', '--upload', metavar='FILE')
-    parser.add_argument('--upload-speed', default=1000000, type=int, choices=[115200, 460800, 921600, 1000000, 2000000])
+    parser.add_argument('--upload-baud',  default=1000000, type=int, choices=supportedBauds)
     args = parser.parse_args()
 
     ser = serial.Serial(args.port, args.baud, timeout=1)
