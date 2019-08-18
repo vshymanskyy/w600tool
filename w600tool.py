@@ -10,6 +10,8 @@ import argparse
 import pyprind
 from xmodem import XMODEM1k
 
+__version__ = "0.1"
+
 CMD_SET_BAUD = 0x31
 CMD_ERASE    = 0x32 # ROM boot only
 CMD_SET_SEC  = 0x33 # ROM boot only
@@ -164,7 +166,7 @@ def getDefaultPort():
 if __name__ == '__main__':
     supportedBauds = [115200, 460800, 921600, 1000000, 2000000]
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(prog='w600tool')
     parser.add_argument('-p', '--port',   default=getDefaultPort())
     parser.add_argument('-b', '--baud',   default=115200,  type=int, choices=supportedBauds, metavar='BAUD')
     parser.add_argument('--get-mac',      action="store_true")
@@ -172,6 +174,7 @@ if __name__ == '__main__':
     parser.add_argument('--erase', '-e',  action="store_true")
     parser.add_argument('--upload', '-u', metavar='FILE')
     parser.add_argument('--upload-baud',  default=1000000, type=int, choices=supportedBauds)
+    parser.add_argument('--version',      action='version', version='%(prog)s '+ __version__)
     args = parser.parse_args()
 
     print('Opening device:', args.port)
