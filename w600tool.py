@@ -169,8 +169,8 @@ if __name__ == '__main__':
     parser.add_argument('-b', '--baud',   default=115200,  type=int, choices=supportedBauds, metavar='BAUD')
     parser.add_argument('--get-mac',      action="store_true")
     parser.add_argument('--set-mac',      metavar='MAC')
-    parser.add_argument('-e', '--erase',  action="store_true")
-    parser.add_argument('-u', '--upload', metavar='FILE')
+    parser.add_argument('--erase', '-e',  action="store_true")
+    parser.add_argument('--upload', '-u', metavar='FILE')
     parser.add_argument('--upload-baud',  default=1000000, type=int, choices=supportedBauds)
     args = parser.parse_args()
 
