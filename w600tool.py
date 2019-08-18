@@ -85,6 +85,8 @@ def deviceSetBaud(baud):
         serialSetBaud(baud)
         if deviceWaitBoot():
             return True
+          
+    serialSetBaud(prev_baud)
     return False
 
 def deviceEraseImage():
@@ -179,7 +181,7 @@ if __name__ == '__main__':
     if not deviceWaitBoot():
         print('Push reset button to enter bootloader...')
         if not deviceWaitBoot(15):
-            error_exit('Bootloader not detected')
+            error_exit('Bootloader not responding')
 
     if args.set_mac:
         mac = args.set_mac.replace(':','').replace(' ','').upper()
@@ -191,10 +193,9 @@ if __name__ == '__main__':
         print('MAC:', mac)
 
     if args.erase:
-        if not deviceIsInRomBoot():
-            print('Erasing secboot')
-            if not deviceEraseSecboot():
-                error_exit('Erasing secboot failed')
+        print('Erasing secboot')
+        if not deviceEraseSecboot():
+            error_exit('Erasing secboot failed')
 
         print('Erasing image')
         deviceEraseImage()
@@ -205,20 +206,22 @@ if __name__ == '__main__':
             error_exit('The specified file does not exist')
             
         _, ext = os.path.splitext(args.upload)
+        ext = ext.lower()
 
-        isRomBoot = deviceIsInRomBoot()
-        if isRomBoot:
-            if ext.lower() == '.img':
-                error_exit('FLS file is required for ROM bootloader')
-        else:
-            if ext.lower() == '.fls':
-                error_exit('IMG file is required for secboot')
+        if ext == '.fls' and not args.erase:
+            print('Erasing secboot')
+            if not deviceEraseSecboot():
+                error_exit('Erasing secboot failed => Try entering ROM boot manually')
+        elif ext == '.img' and deviceIsInRomBoot():
+            error_exit('ROM bootloader only accepts FLS files')
 
         if args.upload_baud != ser.baudrate:
             if deviceSetBaud(args.upload_baud):
                 print('Switched speed to', ser.baudrate)
             else:
-                error_exit('Cannot switch speed')
+                print('Warning: Cannot switch speed')
+                if not deviceWaitBoot(5):
+                    error_exit('Could not recover from speed switch failure => Try again, or set upload-baud to 115200')
 
         print('Uploading', args.upload)
         reply = deviceUploadFile(args.upload)
