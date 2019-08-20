@@ -1,3 +1,5 @@
+<img align="right" height="64" src="/icon.png">
+
 # w600tool
 Firmware upload tool for Winner Micro W600 & W601 WiFi
 
