@@ -6,6 +6,7 @@ import sys
 import time
 import struct
 import argparse
+import platform
 
 import pyprind
 from xmodem import XMODEM1k
@@ -130,10 +131,10 @@ def deviceGetFlashID():
 def deviceUploadFile(fn):
     ser.timeout = 1
     statinfo_bin = os.stat(fn)
-    bar = pyprind.ProgBar(statinfo_bin.st_size//1024)
+    bar = pyprind.ProgBar(statinfo_bin.st_size, bar_char='═')
 
     def ser_write(data, timeout=1):
-        bar.update()
+        bar.update(1024)
         return ser.write(data)
 
     def ser_read(size, timeout=1):
