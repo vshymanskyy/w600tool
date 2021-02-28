@@ -157,7 +157,7 @@ import serial.tools.list_ports
 def getDefaultPort():
     comlist = serial.tools.list_ports.comports()
     if comlist:
-        return next(comlist).device
+        return list(comlist)[0].device
 
     if platform.system() == 'Windows':
         return "COM1"
